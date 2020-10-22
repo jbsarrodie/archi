@@ -44,6 +44,9 @@ public class Thumbnail extends Figure implements UpdateListener {
     // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=543796
     private static final boolean useMacFix = PlatformUtils.isMac() && PlatformUtils.compareOSVersion("10.14") >= 0; //$NON-NLS-1$
     
+    // Big Sur fix
+    private static final boolean useBigSurFix = PlatformUtils.isMac() && PlatformUtils.compareOSVersion("10.16") >= 0; //$NON-NLS-1$
+
     // Bug on Linux Hires displays - GC is disposed of when Image is redrawn
     // See https://github.com/archimatetool/archi/issues/624
     private boolean useLinuxFix;
@@ -183,6 +186,11 @@ public class Thumbnail extends Figure implements UpdateListener {
             if(thumbnailGC.isDisposed()) {
                 thumbnailGC = new GC(thumbnailImage);
                 useLinuxFix = true;
+            }
+            // Fix for MacOS Big Sur total crash
+            else if(useBigSurFix) {
+                thumbnailGC.dispose();
+                thumbnailGC = new GC(thumbnailImage);
             }
             
             int v = getCurrentVTile();
