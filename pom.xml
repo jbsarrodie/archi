@@ -21,6 +21,11 @@
             <layout>p2</layout>
             <url>http://download.eclipse.org/releases/2020-09/</url>
         </repository>
+        <repository>
+            <id>Chromium</id>
+            <layout>p2</layout>
+            <url>https://equo-chromium-cef.ams3.digitaloceanspaces.com/rls/repository</url>
+        </repository>
     </repositories>
 
     <modules>

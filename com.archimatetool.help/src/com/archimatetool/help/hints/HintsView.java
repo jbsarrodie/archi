@@ -8,6 +8,7 @@ package com.archimatetool.help.hints;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.Hashtable;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -66,7 +67,18 @@ public class HintsView
 extends ViewPart
 implements IContextProvider, IHintsView, ISelectionListener, IComponentSelectionListener {
     
-    static File cssFile = new File(ArchiHelpPlugin.INSTANCE.getHintsFolder(), "style.css"); //$NON-NLS-1$
+    // CSS file to string to optimise Chromium browser conversion
+    private static String cssString;
+    
+    {
+        try {
+            File cssFile = new File(ArchiHelpPlugin.INSTANCE.getHintsFolder(), "style.css"); //$NON-NLS-1$
+            cssString = new String(Files.readAllBytes(cssFile.toPath()));
+        }
+        catch(IOException ex) {
+            ex.printStackTrace();
+        }
+    }
 
     private Browser fBrowser;
     
@@ -77,7 +89,8 @@ implements IContextProvider, IHintsView, ISelectionListener, IComponentSelection
      */
     private Hashtable<String, Hint> fLookupTable = new Hashtable<String, Hint>();
     
-    private String fLastPath;
+    private String fLastText;
+    private Object fLastSelected;
     
     private CLabel fTitleLabel;
     
@@ -198,6 +211,11 @@ implements IContextProvider, IHintsView, ISelectionListener, IComponentSelection
         
         return browser;
     }
+    
+    private boolean isChromiumBrowser() {
+        String s = System.getProperty("org.eclipse.swt.browser.DefaultType"); //$NON-NLS-1$
+        return s != null && s.equals("chromium"); //$NON-NLS-1$
+    }
 
     @Override
     public void setFocus() {
@@ -228,6 +246,12 @@ implements IContextProvider, IHintsView, ISelectionListener, IComponentSelection
         if(selection instanceof IStructuredSelection && !selection.isEmpty()) {
             Object selected = ((IStructuredSelection)selection).getFirstElement();
             showHintForSelected(part, selected);
+            
+            // Kludge for focus grab issue on Chromium Browser
+            // It grabs the focus so we have to restore the original active part's focus
+            if(part != null && isChromiumBrowser()) {
+                part.setFocus();
+            }
         }
     }
     
@@ -253,6 +277,13 @@ implements IContextProvider, IHintsView, ISelectionListener, IComponentSelection
         else {
             actualObject = selected;
         }
+        
+        // Stop multiple selections of the same object, especially for Chromium Browser
+        if(fLastSelected == actualObject) {
+            return;
+        }
+        
+        fLastSelected = actualObject;
         
         // This is a Hint Provider so this takes priority...
         if(actualObject instanceof IHelpHintProvider) {
@@ -288,17 +319,17 @@ implements IContextProvider, IHintsView, ISelectionListener, IComponentSelection
         Hint hint = fLookupTable.get(className);
 
         if(hint != null) {
-            if(fLastPath != hint.path) {
-                // Title
-                fTitleLabel.setText(hint.title);
+            // Title
+            fTitleLabel.setText(hint.title);
 
-                // Load page
+            // Optimise for same text
+            if(fLastText != hint.path) {
                 fPageLoaded = false;
-                fBrowser.setUrl(hint.path);
-                fLastPath = hint.path;
+                fBrowser.setUrl("file:///" + hint.path); //$NON-NLS-1$
+                fLastText = hint.path;
 
                 // Kludge for Mac/Safari when displaying hint on mouse rollover menu item in MagicConnectionCreationTool
-                if(PlatformUtils.isMac() && source instanceof MenuItem) {
+                if(source instanceof MenuItem && PlatformUtils.isMac() && !isChromiumBrowser()) {
                     _doMacWaitKludge();
                 }
             }
@@ -314,10 +345,12 @@ implements IContextProvider, IHintsView, ISelectionListener, IComponentSelection
         
         if(StringUtils.isSet(title) || StringUtils.isSet(text)) {
             fTitleLabel.setText(title);
-            text = makeHTMLEntry(text);
-            fBrowser.setText(text);
-            fLastPath = ""; //$NON-NLS-1$
-        }
+
+            if(text != null && !text.equals(fLastText)) { // optimise
+                fBrowser.setText(makeHTMLEntry(text));
+                fLastText = text;
+            }
+         }
         // No user hint, so show inbuilt hint
         else {
             showHintForObject(source, provider);
@@ -326,8 +359,8 @@ implements IContextProvider, IHintsView, ISelectionListener, IComponentSelection
     
     private void showBlankHint() {
         fBrowser.setText(""); //$NON-NLS-1$
-        fLastPath = ""; //$NON-NLS-1$
         fTitleLabel.setText(""); //$NON-NLS-1$
+        fLastText = ""; //$NON-NLS-1$
     }
     
     /**
@@ -341,9 +374,9 @@ implements IContextProvider, IHintsView, ISelectionListener, IComponentSelection
         StringBuffer html = new StringBuffer();
         html.append("<html><head>"); //$NON-NLS-1$
         
-        html.append("<link rel=\"stylesheet\" href=\""); //$NON-NLS-1$
-        html.append(cssFile.getPath());
-        html.append("\" type=\"text/css\">"); //$NON-NLS-1$
+        html.append("<style>"); //$NON-NLS-1$
+        html.append(cssString);
+        html.append("</style>"); //$NON-NLS-1$
         
         html.append("</head>"); //$NON-NLS-1$
         
