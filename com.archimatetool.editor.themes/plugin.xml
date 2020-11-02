@@ -72,6 +72,11 @@
             label="Dark"
             os="macosx">
         </theme>
+        <theme
+            basestylesheeturi="themes/eclipse/css/e4_system.css"
+            id="org.eclipse.e4.ui.css.theme.e4_system"
+            label="System">
+        </theme>
 	</extension>
    
 </plugin>
