@@ -79,6 +79,9 @@ public class MeaningFigure extends AbstractTextControlContainerFigure {
             gradient.dispose();
         }
         
+        // Icon
+        drawIconImage(graphics, bounds);
+
         // Outline
         graphics.setAlpha(getLineAlpha());
         graphics.setForegroundColor(getLineColor());

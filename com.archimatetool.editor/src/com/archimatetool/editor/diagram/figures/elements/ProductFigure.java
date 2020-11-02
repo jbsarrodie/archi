@@ -10,6 +10,7 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Path;
 import org.eclipse.swt.graphics.Pattern;
 
+import com.archimatetool.editor.diagram.figures.AbstractDiagramModelObjectFigure;
 import com.archimatetool.editor.diagram.figures.AbstractTextControlContainerFigure;
 import com.archimatetool.editor.diagram.figures.FigureUtils;
 import com.archimatetool.editor.diagram.figures.FigureUtils.Direction;
@@ -67,6 +68,9 @@ public class ProductFigure extends AbstractTextControlContainerFigure {
                     gradient.dispose();
                 }
                 
+                // Icon
+                ((AbstractDiagramModelObjectFigure)getOwner()).drawIconImage(graphics, bounds);
+
                 // Outline
                 graphics.setForegroundColor(getLineColor());
                 graphics.setAlpha(getLineAlpha());

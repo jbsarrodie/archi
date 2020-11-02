@@ -90,6 +90,9 @@ public class ValueStreamFigure extends AbstractTextControlContainerFigure {
             gradient.dispose();
         }
 
+        // Icon
+        drawIconImage(graphics, bounds);
+
         // Outline
         graphics.setForegroundColor(getLineColor());
         graphics.drawPath(path);
@@ -102,6 +105,10 @@ public class ValueStreamFigure extends AbstractTextControlContainerFigure {
      * Draw the icon
      */
     protected void drawIcon(Graphics graphics) {
+        if(hasIconImage()) {
+            return;
+        }
+        
         graphics.pushState();
         
         graphics.setLineWidth(1);

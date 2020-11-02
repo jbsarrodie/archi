@@ -11,6 +11,7 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Path;
 import org.eclipse.swt.graphics.Pattern;
 
+import com.archimatetool.editor.diagram.figures.AbstractDiagramModelObjectFigure;
 import com.archimatetool.editor.diagram.figures.AbstractFigureDelegate;
 import com.archimatetool.editor.diagram.figures.FigureUtils;
 import com.archimatetool.editor.diagram.figures.IDiagramModelObjectFigure;
@@ -75,6 +76,9 @@ public class ParallelogramFigureDelegate extends AbstractFigureDelegate {
         if(gradient != null) {
             gradient.dispose();
         }
+
+        // Icon
+        ((AbstractDiagramModelObjectFigure)getOwner()).drawIconImage(graphics, bounds);
 
         // Outline
         graphics.setAlpha(getLineAlpha());

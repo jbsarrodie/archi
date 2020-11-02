@@ -57,6 +57,9 @@ public class EllipseFigureDelegate extends AbstractFigureDelegate {
             gradient.dispose();
         }
 
+        // Icon
+        ((AbstractDiagramModelObjectFigure)getOwner()).drawIconImage(graphics, bounds);
+
         // Outline
         graphics.setAlpha(getLineAlpha());
         graphics.setForegroundColor(getLineColor());

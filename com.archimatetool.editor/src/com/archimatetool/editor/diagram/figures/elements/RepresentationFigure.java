@@ -80,6 +80,9 @@ public class RepresentationFigure extends AbstractTextControlContainerFigure {
         if(gradient != null) {
             gradient.dispose();
         }
+        
+        // Icon
+        drawIconImage(graphics, bounds);
 
         // Outline
         graphics.setAlpha(getLineAlpha());
