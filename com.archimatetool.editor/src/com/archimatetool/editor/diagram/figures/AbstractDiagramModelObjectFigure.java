@@ -57,6 +57,9 @@ implements IDiagramModelObjectFigure {
     // Delegate to do drawing
     private IFigureDelegate fFigureDelegate;
     
+    // Delegate to draw icon image
+    private IconicDelegate fIconicDelegate;
+    
     protected AbstractDiagramModelObjectFigure() {
     }
     
@@ -236,6 +239,47 @@ implements IDiagramModelObjectFigure {
     protected int getGradient() {
         return fDiagramModelObject.getGradient();
     }
+    
+    @Override
+    public void updateIconImage() {
+        if(getIconicDelegate() != null) {
+            getIconicDelegate().updateImage();
+            repaint();
+        }
+    }
+    
+    /**
+     * If there is a delegate, draw the icon image in the given bounds
+     */
+    public void drawIconImage(Graphics graphics, Rectangle bounds) {
+        if(getIconicDelegate() != null) {
+            graphics.pushState();
+            graphics.setAlpha(255);
+            getIconicDelegate().drawIcon(graphics, bounds.getCopy());
+            graphics.popState();
+        }
+    }
+
+    /**
+     * @return true if this has a delegate and an image to draw
+     */
+    public boolean hasIconImage() {
+        return getIconicDelegate() != null && getIconicDelegate().getImage() != null;
+    }
+    
+    /**
+     * Set the IconicDelegate if this figure draws icons
+     */
+    protected void setIconicDelegate(IconicDelegate delegate) {
+        fIconicDelegate = delegate;
+    }
+    
+    /**
+     * @return The IconicDelegate if this figure draws icons, or null if not
+     */
+    protected IconicDelegate getIconicDelegate() {
+        return fIconicDelegate;
+    }
 
     @Override
     public IFigure getToolTip() {
@@ -295,5 +339,8 @@ implements IDiagramModelObjectFigure {
 
     @Override
     public void dispose() {
+        if(getIconicDelegate() != null) {
+            getIconicDelegate().dispose();
+        }
     }
 }

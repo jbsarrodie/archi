@@ -20,6 +20,7 @@ import org.eclipse.swt.graphics.Path;
 import com.archimatetool.canvas.model.ICanvasModelSticky;
 import com.archimatetool.editor.diagram.figures.AbstractDiagramModelObjectFigure;
 import com.archimatetool.editor.diagram.figures.ITextFigure;
+import com.archimatetool.editor.diagram.figures.IconicDelegate;
 import com.archimatetool.editor.diagram.figures.TextPositionDelegate;
 import com.archimatetool.editor.preferences.Preferences;
 import com.archimatetool.editor.ui.ColorFactory;
@@ -36,7 +37,6 @@ extends AbstractDiagramModelObjectFigure implements ITextFigure {
     
     private TextFlow fTextFlow;
     private TextPositionDelegate fTextPositionDelegate;
-    private IconicDelegate fIconicDelegate;
     private MultiToolTipFigure fTooltip;
     private Color fBorderColor;
     
@@ -63,8 +63,7 @@ extends AbstractDiagramModelObjectFigure implements ITextFigure {
         add(flowPage, new GridData(SWT.CENTER, SWT.CENTER, true, true));
         fTextPositionDelegate = new TextPositionDelegate(this, flowPage, getDiagramModelObject());
         
-        fIconicDelegate = new IconicDelegate(getDiagramModelObject(), MAX_ICON_SIZE);
-        fIconicDelegate.updateImage();
+        setIconicDelegate(new IconicDelegate(getDiagramModelObject(), MAX_ICON_SIZE));
     }
     
     @Override
@@ -91,11 +90,6 @@ extends AbstractDiagramModelObjectFigure implements ITextFigure {
         fTextPositionDelegate.updateTextPosition();
         
         // Repaint
-        repaint();
-    }
-    
-    public void updateImage() {
-        fIconicDelegate.updateImage();
         repaint();
     }
     
@@ -148,8 +142,7 @@ extends AbstractDiagramModelObjectFigure implements ITextFigure {
         graphics.fillGradient(bounds, false);
         
         // Icon
-        graphics.setAlpha(255);
-        fIconicDelegate.drawIcon(graphics, bounds.getCopy());
+        drawIconImage(graphics, bounds);
         
         // Border
         if(getBorderColor() != null) {
@@ -197,10 +190,5 @@ extends AbstractDiagramModelObjectFigure implements ITextFigure {
         }
         
         return fTooltip;
-    }
-    
-    @Override
-    public void dispose() {
-        fIconicDelegate.dispose();
     }
 }
